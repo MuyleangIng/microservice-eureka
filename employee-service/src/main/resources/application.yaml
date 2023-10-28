@@ -1,5 +1,11 @@
+
 spring:
   application:
     name: employee-service
   config:
     import: "optional:configserver:http://locahost:8088"
+  cloud:
+    loadbalancer:
+      enabled: true
+server:
+  port: 8082

@@ -1,0 +1,65 @@
+version: "3"
+
+services:
+  configuration_server:
+    build:
+      context: ./config-service  # Relative to the location of your docker-compose.yml
+      dockerfile: Dockerfile
+    container_name: configuration_server
+    ports:
+      - "8088:8088"
+    environment:
+      SPRING_PROFILES_ACTIVE: native
+    volumes:
+      - /path/to/config-repo:/config-repo
+
+  service_registry:
+    build:
+      context: ./service-registry  # Relative to the location of your docker-compose.yml
+      dockerfile: Dockerfile
+    container_name: service_registry
+    ports:
+      - "8761:8761"
+
+  department-service:
+    build:
+      context: ./department-service  # Relative to the location of your docker-compose.yml
+      dockerfile: Dockerfile
+    container_name: department-service
+    ports:
+      - "8089:8089"
+    environment:
+      SPRING_PROFILES_ACTIVE: native
+      SPRING_CLOUD_CONFIG_URI: http://configuration_server:8088
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service_registry:8761/eureka/
+    depends_on:
+      - configuration_server
+      - service_registry
+
+  employee-service:
+    build:
+      context: ./employee-service  # Relative to the location of your docker-compose.yml
+      dockerfile: Dockerfile
+    container_name: employee-service
+    ports:
+      - "8060:8060"
+    environment:
+      SPRING_CLOUD_CONFIG_URI: http://configuration_server:8088
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service_registry:8761/eureka/
+    depends_on:
+      - configuration_server
+      - service_registry
+
+  api-gateway:
+    build:
+      context: ./api-gateway  # Relative to the location of your docker-compose.yml
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    ports:
+      - "80:80"
+    environment:
+      SPRING_CLOUD_CONFIG_URI: http://configuration_server:8088
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service_registry:8761/eureka/
+    depends_on:
+      - configuration_server
+      - service_registry

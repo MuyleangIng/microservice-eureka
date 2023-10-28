@@ -1,0 +1,75 @@
+version: "3"
+services:
+  config-svc:
+    build:
+      context: ./config-server
+      dockerfile: Dockerfile
+    container_name: config-svc
+    ports:
+      - "8888:8888"
+    environment:
+      - SPRING_PROFILES_ACTIVE=native
+    networks:
+      - micro_net
+
+  service_registry:
+    build:
+      context: ./service-registry
+      dockerfile: Dockerfile
+    container_name: service_registry
+    ports:
+      - "8761:8761"
+    networks:
+      - micro_net
+
+  department-service:
+    build:
+      context: ./dapartment-service
+      dockerfile: Dockerfile
+    container_name: department-service
+    ports:
+      - "8081:8081"
+    environment:
+      - EUREKA_SERVER_ADDRESS=http://service_registry:8761/eureka/
+      - CONFIG_SERVER_URL=http://config-svc:8888  # Updated Config Server URL
+    depends_on:
+      - config-svc
+      - service_registry
+    networks:
+      - micro_net
+
+  employee-service:
+    build:
+      context: ./employee-service
+      dockerfile: Dockerfile
+    container_name: employee-service
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_CLOUD_CONFIG_URI=http://config-svc:8888
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service_registry:8761/eureka/
+    depends_on:
+      - config-svc
+      - service_registry
+    networks:
+      - micro_net
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8060:8060"
+    environment:
+      - EUREKA_SERVER_ADDRESS=http://service_registry:8761/eureka/
+      - CONFIG_SERVER_URL=http://config-svc:8888  # Updated Config Server URL
+    depends_on:
+      - config-svc
+      - service_registry
+    networks:
+      - micro_net
+
+networks:
+  micro_net:
+    driver: bridge

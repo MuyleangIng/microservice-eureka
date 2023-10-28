@@ -28,6 +28,9 @@ dependencies {
     implementation 'io.micrometer:micrometer-tracing-bridge-brave'
     implementation 'org.springframework.cloud:spring-cloud-starter-config'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
+// https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-zipkin
+    implementation 'org.springframework.cloud:spring-cloud-starter-zipkin:2.2.8.RELEASE'
+
 
 
 }

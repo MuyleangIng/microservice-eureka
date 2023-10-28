@@ -1,5 +1,4 @@
-server:
-  port: 8081
+
 eureka:
   client:
     serviceUrl:
@@ -8,4 +7,14 @@ management:
   tracing:
     sampling:
       probability: 1.0
-
+#  zipkin:
+#    base-url: http://146.190.96.231:9411
+#  sleuth:
+#    sampler:
+#      probability: 1.0
+spring:
+  zipkin:
+    base-url: http://146.190.96.231:9411
+  sleuth:
+    sampler:
+      probability: 1.0
